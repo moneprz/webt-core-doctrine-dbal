@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delete Game Round</title>
     <style>
-        <!-- Same CSS as in User Story 1 -->
+      
     </style>
 </head>
 <body>
