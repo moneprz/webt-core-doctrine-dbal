@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurnUp</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<script>
+    function openNewData() {
+        document.getElementById("newData").style.display = "block";
+    }
+
+    function closeNewData() {
+        document.getElementById("newData").style.display = "none";
+    }
+
+    function openDeleteData() {
+        document.getElementById("deleteData").style.display = "block";
+    }
+
+    function closeDeleteData() {
+        document.getElementById("deleteData").style.display = "none";
+    }
+
+    function escape(htmlStr) {
+        return htmlStr.replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        let player1 = document.getElementById('player1');
+        let player2 = document.getElementById('player2');
+
+        let player1HTML = player1.innerHTML;
+        let player2HTML = player2.innerHTML;
+
+        let escaped1 = escape(player1HTML);
+        let escaped2 = escape(player2HTML);
+
+        player1.innerHTML = escaped1;
+        player2.innerHTML = escaped2;
+    });
+</script>
+
+<body>
+<h1>TurnUp Tournament</h1>
+<table>
+    <thead>
+    <tr>
+        <th scope="col" class="px-4 py-2">Round</th>
+        <th scope="col" class="px-4 py-2">Player 1</th>
+        <th scope="col" class="px-4 py-2">Symbol</th>
+        <th scope="col" class="px-4 py-2">Date</th>
+        <th scope="col" class="px-4 py-2">Time</th>
+        <th scope="col" class="px-4 py-2">Symbol</th>
+        <th scope="col" class="px-4 py-2">Player 2</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>{{ round }}</td>
+        <td>{{ player1 }}</td>
+        <td>{{ symbol1 }}</td>
+        <td>{{ date }}</td>
+        <td>{{ time }}</td>
+        <td>{{ symbol2 }}</td>
+        <td>{{ player2 }}</td>
+    </tr>
+    </tbody>
+</table>
+
+<button onclick="openNewData()">New Round</button>
+<form method="post" action="./newData.php" id="newData" name="newData" style="display: none;">
+    <input class="rounded" id="player1" name="player1" placeholder="Player 1" />
+    <input class="rounded" id="symbol1" name="symbol1" placeholder="Rock/Paper/Scissors" />
+    <input class="rounded" id="date" name="date" placeholder="yyyy-mm-dd" />
+    <input class="rounded" id="time" name="time" placeholder="hh:mm:ss" />
+    <input class="rounded" id="player2" name="player2" placeholder="Player 2" />
+    <input class="rounded" id="symbol2" name="symbol2" placeholder="Rock/Paper/Scissors" />
+    <button onclick="closeNewData()">Save Entry</button>
+</form>
+
+<button onclick="openDeleteData()">Delete Round</button>
+<form method="post" action="./deleteData.php" id="deleteData" name="deleteData" style="display: none;">
+    <input class="rounded" id="round" name="round" placeholder="Round" />
+    <button onclick="closeDeleteData()">Delete Entry</button>
+</form>
+</body>
+
+</html>
