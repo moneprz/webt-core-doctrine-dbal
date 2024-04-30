@@ -1,10 +1,9 @@
 <?php
 
-require_once "vendor/autoload.php"; // Adjust the path as necessary
+require_once "vendor/autoload.php";
 
 use Doctrine\DBAL\DriverManager;
 
-// Configuration
 $connectionParams = [
     'dbname' => 'rps_tournament',
     'user' => 'root',
@@ -15,7 +14,6 @@ $connectionParams = [
 
 $conn = DriverManager::getConnection($connectionParams);
 
-// Check if database and table exist, if not, create them
 $sql = "CREATE DATABASE IF NOT EXISTS rps_tournament";
 $conn->executeStatement($sql);
 $sql = "USE rps_tournament";
@@ -23,41 +21,52 @@ $conn->executeStatement($sql);
 $sql = "CREATE TABLE IF NOT EXISTS game_rounds (
     id INT AUTO_INCREMENT PRIMARY KEY,
     player VARCHAR(255) NOT NULL,
+
     symbol ENUM('rock', 'paper', 'scissors') NOT NULL,
+    player2 VARCHAR(255) NOT NULL,
+    symbol2 ENUM('rock', 'paper', 'scissors') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )";
 $conn->executeStatement($sql);
 
-// Insert test data if the table is empty
 $sql = "SELECT COUNT(*) as count FROM game_rounds";
 $result = $conn->fetchAssociative($sql);
 if ($result["count"] == 0) {
     $data = [
-        ['John Doe', 'rock'],
-        ['Jane Smith', 'paper'],
-        ['Mike Johnson', 'scissors'],
-        ['Sarah Lee', 'rock'],
-        ['William Brown', 'paper'],
-        ['William Browsn', 'paper']
+        [1,'John Doe', 'rock', 'Jane Smith', 'paper'],
+       [2,'Mike Johnson', 'scissors', 'Sarah Lee', 'rock'],
+       [3,'William Brown', 'paper', 'William Browsn', 'paper'],
+       [4,'Sarah Lee', 'rock', 'William Brown', 'paper'],
+       [5,'William Brown', 'paper', 'Sarah Lee', 'rock']
     ];
 
     foreach ($data as $row) {
-        $conn->insert('game_rounds', ['player' => $row[0], 'symbol' => $row[1]]);
+        $conn->insert('game_rounds', [
+            'player' => $row[0],
+            'symbol' => $row[1],
+            'player2' => $row[2],
+            'symbol2' => $row[3]
+        ]);
     }
 }
 
-// Handle insertion of new records
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST["player"]) && isset($_POST["symbol"])) {
+    if (isset($_POST["player"]) && isset($_POST["symbol"]) && isset($_POST["player2"]) && isset($_POST["symbol2"])) {
         $player = $_POST["player"];
         $symbol = $_POST["symbol"];
+        $player2 = $_POST["player2"];
+        $symbol2 = $_POST["symbol2"];
 
-        $conn->insert('game_rounds', ['player' => $player, 'symbol' => $symbol]);
+        $conn->insert('game_rounds', [
+            'player' => $player,
+            'symbol' => $symbol,
+            'player2' => $player2,
+            'symbol2' => $symbol2
+        ]);
 
         echo "<p>Game round inserted successfully!</p>";
     }
 
-    // Handle deletion of records
     if (isset($_POST["id"])) {
         $id = $_POST["id"];
 
@@ -67,8 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Fetch data from the database to display in the HTML table
-$sql = "SELECT id, player, symbol, created_at FROM game_rounds ORDER BY id DESC";
+$sql = "SELECT id, player, player2, symbol, symbol2, created_at FROM game_rounds ORDER BY id DESC";
 $result = $conn->executeQuery($sql);
 
 ?>
@@ -133,8 +141,10 @@ $result = $conn->executeQuery($sql);
     <thead>
     <tr>
         <th>Game Round</th>
-        <th>Player</th>
-        <th>Symbol</th>
+        <th>Player 1</th>
+        <th>Symbol 1</th>
+        <th>Player 2</th>
+        <th>Symbol 2</th>
         <th>Date/Time</th>
     </tr>
     </thead>
@@ -144,6 +154,8 @@ $result = $conn->executeQuery($sql);
             <td><?= $row["id"]?></td>
             <td><?= $row["player"]?></td>
             <td><?= ucfirst($row["symbol"])?></td>
+            <td><?= $row["player2"]?></td>
+            <td><?= ucfirst($row["symbol2"])?></td>
             <td><?= date('F j, Y g:i A', strtotime($row["created_at"]))?></td>
         </tr>
     <?php }?>
@@ -152,11 +164,21 @@ $result = $conn->executeQuery($sql);
 
 <h2>Insert Game Round</h2>
 <form action="<?php echo $_SERVER["PHP_SELF"];?>" method="post">
-    <label for="player">Player:</label>
+    <label for="player">Player 1:</label>
     <input type="text" name="player" id="player" required>
     <br>
-    <label for="symbol">Symbol:</label>
+    <label for="symbol">Symbol 1:</label>
     <select name="symbol" id="symbol" required>
+        <option value="rock">Rock</option>
+        <option value="paper">Paper</option>
+        <option value="scissors">Scissors</option>
+    </select>
+    <br>
+    <label for="player2">Player 2:</label>
+    <input type="text" name="player2" id="player2" required>
+    <br>
+    <label for="symbol2">Symbol 2:</label>
+    <select name="symbol2" id="symbol2" required>
         <option value="rock">Rock</option>
         <option value="paper">Paper</option>
         <option value="scissors">Scissors</option>
@@ -175,3 +197,5 @@ $result = $conn->executeQuery($sql);
 
 </body>
 </html>
+
+
